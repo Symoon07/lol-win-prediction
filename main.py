@@ -21,7 +21,8 @@ features = ['blueWardsPlaced', 'blueWardsDestroyed', 'blueFirstBlood', 'blueKill
             'redTotalGold', 'redAvgLevel', 'redTotalExperience', 'redTotalMinionsKilled',
             'redTotalJungleMinionsKilled', 'redGoldDiff', 'redExperienceDiff', 'redCSPerMin',
             'redGoldPerMin']
-x_train, x_test, y_train, y_test = train_test_split(data[features].values, data['blueWins'].values, test_size=0.2, random_state=42)
+x_train, x_test, y_train, y_test = train_test_split(
+    data[features].values, data['blueWins'].values, test_size=0.2, random_state=42)
 
 x_train_tensor = torch.tensor(x_train, dtype=torch.float32)
 y_train_tensor = torch.tensor(y_train, dtype=torch.float32).unsqueeze(1)
@@ -56,8 +57,15 @@ class FNN(nn.Module):
     def forward(self, x):
         return self.fc(x)
 
+class LR(nn.Module):
+    def __init__(self):
+        super(LR, self).__init__()
+        self.linear = nn.Linear(38, 1)
 
-model = FNN()
+    def forward(self, x):
+        return self.linear(x)
+
+model = LR()
 criterion = nn.BCEWithLogitsLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=5)
@@ -103,9 +111,11 @@ for epoch in range(epochs):
     train_accuracy_history.append(avg_accuracy)
     test_accuracy_history.append(test_accuracy)
 
-    scheduler.step(test_loss)
+    # scheduler.step(test_loss)
 
-    print(f'Epoch [{epoch + 1}/{epochs}], Loss: Train {avg_loss:.4f} | Test {test_loss:.4f}, Accuracy: Train {avg_accuracy:.4f} | Test {test_accuracy:.4f}')
+    print(
+        f'Epoch [{epoch + 1}/{epochs}], Loss: Train {avg_loss:.4f} | Test {test_loss:.4f}, '
+        f'Accuracy: Train {avg_accuracy:.4f} | Test {test_accuracy:.4f}')
 
 model.eval()
 with torch.no_grad():
